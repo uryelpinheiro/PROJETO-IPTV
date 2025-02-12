@@ -1,0 +1,243 @@
+<html>
+<head>
+  <base href="https://ultimate-iptv-world.com/">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPTV BRASIL ON - 9000+ Canais Sem Interrupções</title>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      padding: 20px 0;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 2.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    .search-bar {
+      margin: 20px 0;
+      display: flex;
+      justify-content: center;
+    }
+    #searchInput {
+      width: 70%;
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 25px 0 0 25px;
+    }
+    #searchButton {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 0 25px 25px 0;
+      cursor: pointer;
+    }
+    .category-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .category-btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      background-color: #2a5298;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .category-btn:hover {
+      background-color: #1e3c72;
+    }
+    .channel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .channel-item {
+      background-color: #1e1e1e;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+    .channel-item:hover {
+      transform: scale(1.05);
+    }
+    .channel-item img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+    }
+    .channel-item h3 {
+      padding: 10px;
+      margin: 0;
+      text-align: center;
+      font-size: 16px;
+    }
+    #player {
+      width: 100%;
+      height: 0;
+      padding-bottom: 56.25%; 
+      position: relative;
+      margin-top: 20px;
+      display: none;
+    }
+    #player iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>IPTV BRASIL ON v1</h1>
+  </header>
+
+  <div class="container">
+    <center>
+    <h2>Mais de 9000 Canais Sem Interrupções</h2></center>
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Pesquise um canal...">
+      <button id="searchButton">Buscar</button>
+    </div>
+
+    <div class="category-buttons" id="categoryButtons">
+    </div>
+
+    <div class="channel-grid" id="channelGrid">
+    </div>
+
+    <div id="player">
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script>
+  	
+    const categories = ['Todos', 'Notícias', 'Esportes', 'Filmes', 'Séries', 'Documentários', 'Infantil', 'Música','Gospel',];
+
+    const categoryButtons = document.getElementById('categoryButtons');
+    categories.forEach(category => {
+      const button = document.createElement('button');
+      button.className = 'category-btn';
+      button.textContent = category;
+      button.onclick = () => filterChannels(category);
+      categoryButtons.appendChild(button);
+    });
+
+    const channels = [
+      { name: 'TV SERIE', category: 'Séries', streamUrl: 'https://stmv1.srvif.com/tvserie/tvserie/chunklist_w173840741.m3u8', logoUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZ7UVjr0hM3jMqZ7gJhchBCcwaPu91cD6h0g&s' },
+      { name: 'SBT', category: 'Notícias', streamUrl: 'http://wz4.dnip.com.br/bemtv/bemtv.sdp/playlist.m3u8', logoUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJTR4MlczeyA4eF46mx7INpv3Ge_rvnxQ3Tg&usqp=CAU' },
+      { name: 'RETROTV', category: 'Séries', streamUrl: 'https://stmv1.srvif.com/retrotv/retrotv/playlist.m3u8', logoUrl: 'data:image/png;base64,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' },
+      { name: 'CINE+', category: 'Filmes', streamUrl: 'http://painelvj.com.br/tvaguaboa2/tvaguaboa2.sdp/chunklist.m3u8', logoUrl: 'http://www.cxtv.com.br/img/Tvs/Logo/3cf68824cb3b05c75471e24c65a4d7c5.png' },
+      { name: 'ANIME TV', category: 'Infantil', streamUrl: 'https://stmv1.srvif.com/animetv/animetv/playlist.m3u8', logoUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuZcBXNbH6ppdYEIctN52PBOltKl5XJcqavw&usqp=CAU' },
+      { name: 'Combate Global', category: 'Música', streamUrl: 'https://stream.ads.ottera.tv/playlist.m3u8?network_id=960', logoUrl: 'https://img3.static-ottera.com/prod/cnm/linear_channel/thumbnails/widescreen/366x206/linear-combate-global.jpg' },
+      { name: 'REAL MADRID', category: 'Esportes', streamUrl: 'https://stream.ads.ottera.tv/playlist.m3u8?network_id=1545', logoUrl: 'https://img3.static-ottera.com/prod/cnm/linear_channel/thumbnails/widescreen/366x206/linear-real-madrid-v2-16x9_1.jpg' },
+      { name: 'NARUTO TV', category: 'Música', streamUrl: 'http://service-stitcher.clusters.pluto.tv/stitch/hls/channel/5f6df5a173d7340007c559f7/master.m3u8?advertisingId=&appName=web&appVersion=unknown&appStoreUrl=&architecture=&buildVersion=&clientTime=0&deviceDNT=0&deviceId=97826450-62 9b-11eb- 86b1-3facc9da388a&deviceMake=Chrome&deviceModel=web&deviceType=web&deviceVersion=unknown&includeExtendedEvents=false&sid=0ff24521-c218-4cf1-9a6e-e54f76667c9b&userId=&serverSideAds=true', logoUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxhTmTPJx7W4WuH4LydZk01s15fv_YfwnaW59GiR2UR2BsaZgTJm6TatI&s=10' },
+      { name: 'CINE+', category: 'Filmes', streamUrl: 'http://live.lordstreams.co:8080/Marky0416/2c1744538b/511199', logoUrl: 'http://www.cxtv.com.br/img/Tvs/Logo/3cf68824cb3b05c75471e24c65a4d7c5.png' },
+      { name: 'Combate FHD', category: 'Música', streamUrl: 'http://supersonictv.live:8080/899559/316805/84953', logoUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHQiT9yZTI8HH0wKJS0c8SqMs6a2Uv17QuL25TkiakMBwYUSVHnw7J67o&s=10' },  
+      { name: 'ANIME TV', category: 'Música', streamUrl: 'http://tv.mapfibra.com.br:8555/live/1438/123456/131.m3u8', logoUrl: 'https://listaiptv.gratis/logos/imagens/sbt.png' },  
+      { name: 'RECORD NEWS', category: 'Notícias', streamUrl: 'https://stream.ads.ottera.tv/playlist.m3u8?network_id=2116', logoUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHQiT9yZTI8HH0wKJS0c8SqMs6a2Uv17QuL25TkiakMBwYUSVHnw7J67o&s=10' },  
+      { name: 'BAND', category: 'Notícias', streamUrl: 'https://cr7v.short.gy/saidailadrao2/index.m3u8', logoUrl: "https://i.imgur.com/CkoAvYH.png" },  
+      { name: 'ESPN', category: 'Esportes', streamUrl: 'https://super-cdn.link/espn3/index.m3u8', logoUrl: "https://imgur.com/VCPTlBD.png" },
+      { name: 'REDE GOSPEL', category: 'Gospel', streamUrl: "https://i.imgur.com/ngbsXOB.png", logoUrl: 'data:image/png;base64,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' },
+      { name: 'Tela Brasil TV', category: 'Notícias', streamUrl: "https://stmv3.webtvninjas.com.br/mailson6054/mailson6054/playlist.m3u8", logoUrl: "https://static.wixstatic.com/media/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png/v1/fill/w_86,h_84,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png" },
+      { name: 'TV Aparecida', category: 'Gospel', streamUrl: "https://cdn.jmvstream.com:443/w/LVW-9716/LVW9716_HbtQtezcaw/chunklist.m3u8?ROGERIOTORRES", logoUrl: "https://static.wixstatic.com/media/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png/v1/fill/w_86,h_84,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png" },
+      { name: 'Tela Brasil TV', category: 'Notícias', streamUrl: "https://stmv3.webtvninjas.com.br/mailson6054/mailson6054/playlist.m3u8", logoUrl: "https://static.wixstatic.com/media/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png/v1/fill/w_86,h_84,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png" },
+      { name: 'Disney Channel FHD', category: 'Notícias', streamUrl: "http://supersonictv.live:8080/899559/316805/84974", logoUrl: "https://static.wixstatic.com/media/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png/v1/fill/w_86,h_84,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png" },
+      { name: 'SporTV 2 HD', category: 'Esportes', streamUrl: "https://super-cdn.link/sportv2/index.m3u8", logoUrl: "https://static.wixstatic.com/media/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png/v1/fill/w_86,h_84,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png" },
+      { name: 'SporTV 3 HD', category: 'Esportes', streamUrl: "https://super-cdn.link/sportv3/index.m3u8", logoUrl: "https://static.wixstatic.com/media/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png/v1/fill/w_86,h_84,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png" },
+      { name: 'Rede Século 21', category: 'Notícias', streamUrl: "http://supersonictv.live:8080/899559/316805/85261", logoUrl: "https://static.wixstatic.com/media/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png/v1/fill/w_86,h_84,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png" },
+      { name: 'Disney Channel FHD', category: 'Notícias', streamUrl: "", logoUrl: "https://static.wixstatic.com/media/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png/v1/fill/w_86,h_84,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/c66e37_a7fc789f6df244b09d8e33fcbb22b2bc~mv2.png" },
+
+
+
+
+
+
+    ];
+
+    function displayChannels(channelsToShow) {
+      const channelGrid = document.getElementById('channelGrid');
+      channelGrid.innerHTML = '';
+      channelsToShow.forEach(channel => {
+        const channelItem = document.createElement('div');
+        channelItem.className = 'channel-item';
+        channelItem.innerHTML = `
+          <img src="${channel.logoUrl}" alt="${channel.name} logo">
+          <h3>${channel.name}</h3>
+        `;
+        channelItem.onclick = () => playChannel(channel);
+        channelGrid.appendChild(channelItem);
+      });
+    }
+
+    function filterChannels(category) {
+      const filteredChannels = category === 'Todos' ? channels : channels.filter(channel => channel.category === category);
+      displayChannels(filteredChannels);
+    }
+
+    function playChannel(channel) {
+      const playerDiv = document.getElementById('player');
+      playerDiv.innerHTML = '';
+      playerDiv.style.display = 'block';
+
+      if (Hls.isSupported()) {
+        const video = document.createElement('video');
+        video.controls = true;
+        playerDiv.appendChild(video);
+
+        const hls = new Hls();
+        hls.loadSource(channel.streamUrl);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          video.play();
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        const video = document.createElement('video');
+        video.src = channel.streamUrl;
+        video.addEventListener('loadedmetadata', function() {
+          video.play();
+        });
+        playerDiv.appendChild(video);
+      }
+    }
+
+    displayChannels(channels);
+
+    document.getElementById('searchButton').onclick = function() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const filteredChannels = channels.filter(channel => 
+        channel.name.toLowerCase().includes(searchTerm) || 
+        channel.category.toLowerCase().includes(searchTerm)
+      );
+      displayChannels(filteredChannels);
+    };
+  </script>
+</body>
+</html>
